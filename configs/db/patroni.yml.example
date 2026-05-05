@@ -1,0 +1,68 @@
+scope: projecte7
+namespace: /service/
+name: srv-db-01
+
+restapi:
+  listen: 192.168.30.2:8008
+  connect_address: 192.168.30.2:8008
+
+etcd3:
+  hosts:
+    - 192.168.30.10:2379
+    - 192.168.30.20:2379
+    - 192.168.30.2:2379
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    synchronous_mode: true
+    synchronous_mode_strict: false
+    postgresql:
+      use_pg_rewind: true
+      parameters:
+        wal_level: replica
+        hot_standby: "on"
+        max_wal_senders: 10
+        max_replication_slots: 10
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+  users:
+    postgres:
+      password: choose-your-pwd
+    replicator:
+      password: "choose-your-pwd"
+      options:
+        - replication
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: 192.168.30.2:5432
+  data_dir: /var/lib/postgresql/16/main
+  bin_dir: /usr/lib/postgresql/16/bin
+
+  authentication:
+    superuser:
+      username: postgres
+      password: choose-your-pwd
+    replication:
+      username: replicator
+      password: "choose-your-pwd"
+
+  parameters:
+    unix_socket_directories: '/var/run/postgresql'
+    cluster_name: 'srv-db-01'
+
+  pg_hba:
+    - host replication replicator 192.168.30.2/32 md5
+    - host replication replicator 192.168.30.3/32 md5
+    - host all all 192.168.30.0/24 md5
+    - host all all 127.0.0.1/32 scram-sha-256
+    - local all all peer
+
+tags:
+  noloadbalance: false
+  clonefrom: false
+  nosync: false
