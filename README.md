@@ -33,7 +33,7 @@ Diseñar y validar una arquitectura capaz de mantener el servicio activo ante fa
 - Verificación de quorum.
 
 ## Diagramas
-
+![Ejemplo](diagramas_red/ejemplo_diagrama.jpg)
 - [Diagramas de red](diagramas_red/projecte7_esquemas.pdf)
 - [Direccionamiento](diagramas_red/Direccionamiento.pdf)
 
