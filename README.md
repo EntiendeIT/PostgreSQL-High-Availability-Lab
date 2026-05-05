@@ -40,7 +40,6 @@ Diseñar y validar una arquitectura capaz de mantener el servicio activo ante fa
 ## Documentación
 
 - [Fase de pruebas](docs/FaseProves.pdf)
-- [Pruebas técnicas](tests/fase-pruebas.md)
 
 ## Aviso
 
