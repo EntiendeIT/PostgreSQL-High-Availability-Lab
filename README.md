@@ -73,6 +73,8 @@ Los nodos secundarios utilizan la misma configuración modificando:
 - Eliminación de puntos únicos de fallo (SPOF)
 
 ---
+## 🔗 Acceso al proyecto
+Repositorio completo con configuraciones y pruebas reales disponibles en este repositorio.
 
 ## 📂 Documentación
 
