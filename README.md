@@ -2,46 +2,88 @@
 
 Infraestructura de alta disponibilidad con PostgreSQL, Patroni, etcd, HAProxy y Keepalived.
 
-## Objetivo
+---
 
-Diseñar y validar una arquitectura capaz de mantener el servicio activo ante fallos en servidores web, base de datos, balanceadores y nodos de consenso.
+## 🎯 Objetivo
 
-## Arquitectura
+Diseñar e implementar una arquitectura capaz de mantener el servicio operativo ante fallos de nodos, eliminando puntos únicos de fallo (SPOF).
 
-- PostgreSQL + Patroni para failover automático.
-- etcd en clúster de 3 nodos para consenso.
-- HAProxy para redirigir tráfico al nodo PostgreSQL primario.
-- Keepalived para gestión de VIPs.
-- Servidores web balanceados mediante Round Robin.
+---
 
-## Features
+## 🧩 Arquitectura
 
-- Failover automático de PostgreSQL.
-- Promoción automática de réplica a líder.
-- Conexión mediante VIP.
-- Balanceo web con HAProxy.
-- Tolerancia a fallo de un nodo etcd mediante quorum.
-- Pruebas reales con DBeaver y aplicación web.
+- PostgreSQL + Patroni → failover automático
+- etcd (cluster 3 nodos) → consenso distribuido (quorum)
+- HAProxy → balanceo y redirección al nodo primario
+- Keepalived → gestión de IPs virtuales (VIP)
+- Servidores web Apache → balanceo Round Robin
 
-## Pruebas realizadas
+---
 
-- Caída de servidor web.
-- Caída del nodo PostgreSQL primario.
-- Inserciones después del failover.
-- Caída de un balanceador.
-- Caída de un nodo etcd.
-- Verificación de quorum.
+## 🚀 Features
 
-## Diagramas
-![Ejemplo](diagramas_red/ejemplo_diagrama.jpg)
-- [Diagramas de red](diagramas_red/projecte7_esquemas.pdf)
-- [Direccionamiento](diagramas_red/Direccionamiento.pdf)
+- ✔️ Failover automático de PostgreSQL
+- ✔️ Promoción automática de réplica a líder
+- ✔️ Acceso mediante VIP sin cambiar cliente
+- ✔️ Balanceo web con HAProxy
+- ✔️ Tolerancia a fallo de nodos
+- ✔️ Cluster etcd con quorum (2/3)
 
-## Documentación
+---
+
+## 🧪 Pruebas realizadas
+
+- 🔹 Caída del nodo primario → failover automático
+- 🔹 Inserciones tras promoción de réplica
+- 🔹 Conexión mediante VIP (transparente al cliente)
+- 🔹 Caída de servidor web → servicio continúa
+- 🔹 Caída de balanceador → VIP migra correctamente
+- 🔹 Caída de nodo etcd → quorum mantiene servicio
+
+---
+
+## 📊 Arquitectura del sistema
+
+![Arquitectura HA](diagramas_red/ejemplo_diagrama.jpg)
+
+---
+
+## ⚙️ Configuración
+
+Se incluye la configuración de un nodo por tipo:
+
+- `lb` → balanceador (HAProxy + Keepalived + etcd)
+- `db` → nodo PostgreSQL (Patroni)
+- `wa` → servidor web
+
+Los nodos secundarios utilizan la misma configuración modificando:
+
+- IP
+- nombre del nodo
+- prioridad (Keepalived)
+
+---
+
+## 🧠 Key Learnings
+
+- Implementación real de alta disponibilidad
+- Gestión de failover automático con Patroni
+- Importancia del quorum en etcd
+- Resolución de problemas de split-brain
+- Eliminación de puntos únicos de fallo (SPOF)
+
+---
+
+## 📂 Documentación
 
 - [Fase de pruebas](docs/FaseProves.pdf)
+- [Esquemas de red](docs/projecte7_esquemas.pdf)
 
-## Aviso
+---
 
-Las configuraciones incluidas son ejemplos de laboratorio. Las contraseñas, IPs y rutas deben adaptarse antes de usarse en otro entorno.
-Los nodos secundarios usan la misma configuración, cambiando nombre de nodo, IP, prioridad y roles.
+## ⚠️ Aviso
+
+Las configuraciones incluidas son ejemplos de laboratorio.  
+Las credenciales han sido modificadas (`choose-your-pwd`).
+
+---
