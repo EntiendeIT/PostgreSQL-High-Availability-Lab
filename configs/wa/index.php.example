@@ -1,0 +1,139 @@
+<?php
+$host = "192.168.30.4";
+$db = "projecte7";
+$user = "postgres";
+$pass = "choose-your-pwd";
+
+$conn = pg_connect("host=$host dbname=$db user=$user password=$pass");
+
+if (!$conn) {
+    die("<div style='background:#0f172a; color:#f87171; text-align:center; padding:50px; font-family:sans-serif;'><h2>CRITICAL: Database Connection Unreachable</h2></div>");
+}
+
+// Metadata del sistema y base de datos
+$query_status = pg_query($conn, "
+    SELECT
+        current_setting('cluster_name') AS cluster_id,
+        inet_server_addr() AS ip,
+        CASE WHEN pg_is_in_recovery() THEN 'REPLICA' ELSE 'LEADER' END AS role,
+        current_database() as db_name
+");
+$status = pg_fetch_assoc($query_status);
+
+// Mensajes de prueba_ha
+$result_msg = pg_query($conn, "SELECT id, mensaje, fecha FROM prueba_ha ORDER BY id DESC LIMIT 10");
+
+// Información del Servidor Web
+$web_server = gethostname();
+?>
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>HA Dashboard | Patroni & Web Stack</title>
+    <style>
+        :root {
+            --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+            --green: #22c55e; --orange: #f59e0b; --blue: #3b82f6; --border: #334155;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+
+        /* Sección de Infraestructura */
+        .infra-bar {
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; background: rgba(59, 130, 246, 0.1);
+            padding: 15px; border-radius: 12px; border: 1px dashed var(--blue); margin-bottom: 30px;
+        }
+        .infra-item { display: flex; flex-direction: column; align-items: center; }
+        .infra-label { font-size: 0.7rem; color: var(--blue); font-weight: bold; text-transform: uppercase; }
+        .infra-value { font-family: monospace; font-size: 1rem; }
+        .connector { color: var(--muted); font-size: 1.5rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; }
+        .card-label { color: var(--muted); font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; }
+        .card-value { font-size: 1.1rem; font-weight: bold; }
+
+        .badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: bold; border: 1px solid; }
+        .LEADER { color: var(--green); background: rgba(34,197,94,0.1); border-color: var(--green); }
+        .REPLICA { color: var(--orange); background: rgba(245,158,11,0.1); border-color: var(--orange); }
+
+        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(0,0,0,0.2); padding: 12px 20px; text-align: left; color: var(--muted); font-size: 0.8rem; }
+        td { padding: 12px 20px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        .pulse { height: 8px; width: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; margin-right: 8px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div style="display:flex; align-items:center;">
+            <span class="pulse"></span>
+            <h1 style="margin:0; font-size:1.2rem;">SISTEMA D'ALTA DISPONIBILITAT</h1>
+        </div>
+        <div style="color:var(--muted); font-size:0.8rem;">v2.1 Build Final</div>
+    </header>
+
+    <div class="infra-bar">
+        <div class="infra-item">
+            <span class="infra-label">Servidor Web Actiu</span>
+            <span class="infra-value">🌐 <?php echo $web_server; ?></span>
+        </div>
+        <div class="connector">───▶</div>
+        <div class="infra-item">
+            <span class="infra-label">Node Database (Patroni)</span>
+            <span class="infra-value">🐘 <?php echo htmlspecialchars($status['cluster_id']); ?></span>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-label">DATABASE IP</div>
+            <div class="card-value"><?php echo $status['ip']; ?></div>
+        </div>
+        <div class="card">
+            <div class="card-label">TOPOLOGY ROLE</div>
+            <span class="badge <?php echo $status['role']; ?>"><?php echo $status['role']; ?></span>
+        </div>
+        <div class="card">
+            <div class="card-label">ACTIVE DB</div>
+            <div class="card-value"><?php echo $status['db_name']; ?></div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div style="padding:15px 20px; font-weight:bold; border-bottom:1px solid var(--border);">
+            Registres de la taula: <span style="color:var(--blue);">prueba_ha</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>MISSATGE</th>
+                    <th>DATA I HORA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = pg_fetch_assoc($result_msg)): ?>
+                <tr>
+                    <td style="color:var(--blue); font-weight:bold;">#<?php echo $row['id']; ?></td>
+                    <td><?php echo htmlspecialchars($row['mensaje']); ?></td>
+                    <td style="color:var(--muted);"><?php echo date('d/m/Y H:i', strtotime($row['fecha'])); ?></td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
