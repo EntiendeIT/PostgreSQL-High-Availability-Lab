@@ -34,7 +34,7 @@ Diseñar y validar una arquitectura capaz de mantener el servicio activo ante fa
 
 ## Diagramas
 
-![Arquitectura HA](diagrams/arquitectura-ha.png)
+![Arquitectura HA](diagramas_red/projecte7_esquemas.pdf)
 
 ## Documentación
 
