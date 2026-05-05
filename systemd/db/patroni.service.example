@@ -1,0 +1,14 @@
+[Unit]
+Description=Patroni PostgreSQL HA
+After=network.target
+
+[Service]
+User=postgres
+Group=postgres
+Type=simple
+ExecStart=/opt/patroni/venv/bin/patroni /etc/patroni.yml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
