@@ -1,0 +1,32 @@
+#!/bin/bash
+
+iptables -F
+iptables -t nat -F
+
+iptables -P FORWARD ACCEPT
+
+echo "1" >/proc/sys/net/ipv4/ip_forward
+
+# NAT de salida
+iptables -t nat -A POSTROUTING -o ens18 -j MASQUERADE
+
+# Forward red web <-> Internet
+iptables -A FORWARD -i ens20 -o ens18 -j ACCEPT
+iptables -A FORWARD -i ens18 -o ens20 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Forward red BBDD <-> Internet
+iptables -A FORWARD -i ens21 -o ens18 -j ACCEPT
+iptables -A FORWARD -i ens18 -o ens21 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# NAT WEB
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 80 -j DNAT --to-destination 192.168.20.4:80
+
+# NAT SSH
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 2201 -j DNAT --to-destination 172.30.12.63:22
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 2202 -j DNAT --to-destination 172.30.12.113:22
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 2203 -j DNAT --to-destination 192.168.20.2:22
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 2204 -j DNAT --to-destination 192.168.20.3:22
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 2205 -j DNAT --to-destination 192.168.30.2:22
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 2206 -j DNAT --to-destination 192.168.30.3:22
+
+iptables -t nat -A PREROUTING -p tcp -d 172.30.12.163 --dport 5432 -j DNAT --to-destination 192.168.30.4:5432
