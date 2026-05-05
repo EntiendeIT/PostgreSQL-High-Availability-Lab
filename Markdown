@@ -1,1 +1,0 @@
-Los nodos secundarios usan la misma configuración, cambiando nombre de nodo, IP, prioridad y roles.
