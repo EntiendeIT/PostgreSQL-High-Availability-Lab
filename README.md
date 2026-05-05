@@ -44,3 +44,4 @@ Diseñar y validar una arquitectura capaz de mantener el servicio activo ante fa
 ## Aviso
 
 Las configuraciones incluidas son ejemplos de laboratorio. Las contraseñas, IPs y rutas deben adaptarse antes de usarse en otro entorno.
+Los nodos secundarios usan la misma configuración, cambiando nombre de nodo, IP, prioridad y roles.
