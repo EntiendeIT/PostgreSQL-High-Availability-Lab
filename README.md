@@ -79,7 +79,7 @@ Repositorio completo con configuraciones y pruebas reales disponibles en este re
 ## 📂 Documentación
 
 - [Fase de pruebas](docs/FaseProves.pdf)
-- [Esquemas de red](docs/projecte7_esquemas.pdf)
+- [Esquemas de red](diagramas_red/projecte7_esquemas.pdf)
 
 ---
 
